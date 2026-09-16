@@ -54,7 +54,7 @@ def rename_pdf(pdf_path: str, extracted_records: list[dict]) -> list[dict]:
     return extracted_records
 
 def main():
-    PDF_FOLDER = "/Users/schulzdimitrii/Documents/CV/NF-e"
+    PDF_FOLDER = str(input("Insira o caminho da pasta com os PDFs: "))
     extracted_records = extract_text_from_pdf(PDF_FOLDER)
     extracted_records = rename_pdf(PDF_FOLDER, extracted_records)
     print("Done!")
