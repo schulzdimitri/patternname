@@ -9,7 +9,8 @@ def sanitize_filename(name: str) -> str:
 
 def extract_invoice_data(text: str) -> dict:
     nfe_match = re.search(r"N[ºo°]\s*(\d+)", text)
-    name_match = re.search(r"Nome\s*/\s*Razão\s*Social\s*\n+([^\n]+)", text, re.IGNORECASE)
+    name_pattern = r"Nome\s*/\s*Razão\s*Social\s*\n+([^\n]+)"
+    name_match = re.search(name_pattern, text, re.IGNORECASE)
 
     return {
         "invoice_number": nfe_match.group(1) if nfe_match else None,
@@ -51,7 +52,9 @@ def extract_text_from_pdf(folder_path: Path) -> list[dict]:
             if invoice_data:
                 extracted_records.append(invoice_data)
             else:
-                print(f"Warning: Could not extract invoice details from '{pdf.name}'.")
+                print(
+                    f"Warning: Could not extract invoice from '{pdf.name}'."
+                )
 
         except pypdf.errors.PdfReadError:
             print(f"Error: Corrupted or unreadable PDF file '{pdf.name}'.")
@@ -70,7 +73,9 @@ def rename_pdf(folder_path: Path, extracted_records: list[dict]) -> list[dict]:
         file_name = record.get("file_name")
 
         if not invoice_number or not recipient_name:
-            print(f"Skipping '{file_name}': Missing invoice number or recipient name.")
+            print(
+                f"Skipping '{file_name}': Missing invoice number or name."
+            )
             continue
 
         sanitized_recipient = sanitize_filename(recipient_name)
@@ -88,7 +93,9 @@ def rename_pdf(folder_path: Path, extracted_records: list[dict]) -> list[dict]:
             continue
 
         if new_file.exists():
-            print(f"Warning: Target file '{new_filename}' already exists. Skipping to avoid overwrite.")
+            print(
+                f"Warning: Target '{new_filename}' exists. Skipping."
+            )
             continue
 
         try:
